@@ -1,0 +1,557 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Slider Controls</title>
+    <a href="https://www.xavimt.com" style="text-decoration: none; color: blue; font-size: 16px;"> ← Back to the main site</a>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        
+        .panel {
+            width: 55%; /* Default width for larger devices */
+            margin: auto; /* Center the panel horizontally */
+            padding: 10px;
+            background-color: #f0f0f0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px; /* Space between the panels */
+        }
+
+        /* Media Query for devices with a max width of 600 pixels */
+        @media (max-width: 600px) {
+            .panel {
+                width: 90%; /* Adjust width for mobile devices */
+            }
+        }
+        
+        .slider-container {
+            margin-bottom: 20px; /* Space between sliders */
+        }
+    
+        input[type="range"] {
+            width: 100%; /* Full width of the container */
+            margin: 10px 0;
+        }
+    
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            list-style: none;
+            padding: 0;
+            margin-top: 5px; /* Margin to space labels from the slider */
+        }
+    
+        .slider-labels li {
+            flex: 1;
+            text-align: center;
+        }
+    
+
+        #controlPanel {
+            text-align: center;
+        }
+
+        #outputText {
+            text-align: center;
+            min-height: 160px; /* Adjust the height as needed */
+        }
+
+        #instructionText {
+            text-align: left;
+            font-style: italic;
+            min-height: 120px; /* Adjust the height as needed */
+        }
+    
+        #styleLabel, #configLabel, #instructionLabel {
+            display: flex;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            flex-grow: 1;  /* Allows the label to take up any extra space */
+            text-align: center;  /* Centers the text inside the label */
+            align-items: center;  /* Aligns items vertically center */
+
+        }
+
+        #displayText {
+    background-color: white; /* Sets the text background to white */
+    margin: 10px auto; /* Centers the text and provides some spacing from the container edges */
+    padding: 10px; /* Adds padding around the text for better readability */
+    width: 95%; /* Controls the width of the text container within the panel */
+    text-align: left;  /* Centers the text inside the label */
+}
+        #publicationDate {
+     text-align: center;
+     margin-top: 20px;
+     font-size: 12px;
+     color: grey;
+}
+
+.button-container {
+            display: flex;
+            justify-content: left; /* Centers buttons horizontally in the container */
+            margin-top: 10px;
+            margin-bottom: 0px;
+        }
+        
+        button {
+            min-width: 80px; /* Adjusted width to better fit text */
+            text-align: center;
+            display: flex;
+            justify-content: center; /* Centers text horizontally */
+            align-items: center; /* Centers text vertically */
+            background-color: #f8f8f8;
+            border: 1px solid #ccc;
+            color: #333;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0 5px; /* Adds space between buttons */
+        }
+
+    </style>
+    </head>
+    <body>
+        <div id="outputText" class="panel">
+            <span id="styleLabel">AI Tone Preview</span>
+            <p id="displayText">Please adjust the sliders to see the text change.</p>
+        </div>
+        
+        <div id="controlPanel" class="panel">
+            <span id="configLabel">AI Tone Configuration</span>
+            <div class="button-container">
+                <button onclick="randomizeSliders()">Shuffle</button> <!-- Dice Emoji -->
+                <button onclick="copyInstructions()">Export Prompt/Instructions</button> <!-- Document Emoji -->
+            </div>
+            <div class="slider-container">
+                <label for="formality">Formality</label>
+                <input type="range" id="formality" min="0" max="3" value="2" onchange="updateText()">
+                <ul class="slider-labels">
+                    <li>Casual</li>
+                    <li>Informal</li>
+                    <li>Semi-formal</li>
+                    <li>Formal</li>
+                </ul>
+            </div>
+        
+            <div class="slider-container">
+                <label for="emotionality">Emotionality</label>
+                <input type="range" id="emotionality" min="0" max="3" value="1" onchange="updateText()">
+                <ul class="slider-labels">
+                    <li>Neutral</li>
+                    <li>Mild</li>
+                    <li>Emotive</li>
+                    <li>Dramatic</li>
+                </ul>
+            </div>
+        
+            <div class="slider-container">
+                <label for="directness">Directness</label>
+                <input type="range" id="directness" min="0" max="3" value="3" onchange="updateText()">
+                <ul class="slider-labels">
+                    <li>Direct</li>
+                    <li>Indirect</li>
+                    <li>Personal</li>
+                    <li>Abstract</li>
+                </ul>
+            </div>
+        
+            <div class="slider-container">
+                <label for="complexity">Complexity</label>
+                <input type="range" id="complexity" min="0" max="3" value="1" onchange="updateText()">
+                <ul class="slider-labels">
+                    <li>Simple</li>
+                    <li>Moderate</li>
+                    <li>Complex</li>
+                    <li>Sophisticated</li>
+                </ul>
+            </div>
+        </div>
+        
+    
+        <div id="instructionText" class="panel">
+            <span id="instructionLabel">AI Prompt / Instructions</span>
+            <p id="systemInstruction">Adjust the sliders to view instructions.</p>
+        </div>
+        <p id="publicationDate">Published on 30/04/2024</p> <!-- Publication date added -->
+
+    </body>
+</html>
+
+    <script>
+        var formalityDescriptions = [
+            "be very laid-back, often include slang, idiomatic expressions, and humor",
+            "be relaxed and conversational, using everyday language and contractions",
+            "balance conversational language with professional decorum",
+            "use precise language, avoid contractions, and follow strict grammatical rules"
+        ];
+        var emotionalityDescriptions = [
+            "maintain an objective tone, free from emotional expression",
+            "introduce slight personal feelings or warmth",
+            "express strong feelings or enthusiasm",
+            "with intense emotional expression, used for artistic purposes or to evoke strong reactions"
+        ];
+        var directnessDescriptions = [
+            "get straight to the point, with clear and concise language",
+            "use more nuanced or suggestive language, often polite or diplomatic",
+            "address the reader directly and often includes personal anecdotes or experiences",
+            "focus on concepts or ideas without direct reference to specific, actionable items"
+        ];
+        var complexityDescriptions = [
+            "use basic vocabulary and short sentences.",
+            "incorporate a wider vocabulary and more varied sentence structures",
+            "feature advanced vocabulary and complex sentence constructions",
+            "employ a rich, nuanced vocabulary and varied stylistic devices"
+        ];
+
+        var combinations = {
+            "Formal-Neutral-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, a solitary clockmaker known for his unique timepieces, resides in a village. Upon receiving a letter, he is tasked to create a clock that transcends traditional time measures.",
+      "Formal-Neutral-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, a clockmaker famed for his distinctive watches, lives in a village where time flows uniquely. One day, he is instructed via letter to design a clock free from the constraints of hours and minutes.",
+      "Formal-Neutral-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, a reclusive artisan celebrated for his extraordinary yet odd horological creations, dwells in a hamlet where time ebbs and flows strangely. He soon receives a cryptic letter urging him to devise a timepiece liberated from conventional temporal limits.",
+      "Formal-Neutral-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, an illustrious yet solitary horologist known for his remarkably unique chronometers, resides in a quaint village where temporal norms do not apply. A mysterious correspondence compels him to fabricate a clock that defies the traditional segmentation of time.",
+      "Formal-Neutral-Indirect-Simple": "In 'The Clockmaker’s Gift,' it is told how Elias, a clockmaker with a collection of unusual timepieces, receives a challenging letter in his village home, where time behaves unusually, to create an unconventional clock.",
+      "Formal-Neutral-Indirect-Moderate": "In 'The Clockmaker’s Gift,' the narrative unfolds around Elias, a clockmaker noted for his peculiar yet splendid timepieces, residing in a village untouched by conventional time. A letter soon arrives, subtly suggesting he embark on crafting a clock beyond the ordinary measures of time.",
+      "Formal-Neutral-Indirect-Complex": "In 'The Clockmaker’s Gift,' the story delicately reveals Elias, a craftsman famed for his singular and intricate timekeeping devices, living in a locale where time seems an abstract concept. An enigmatic letter arrives, gently prodding him towards the creation of a timepiece unbound by the mundane cycles of hours and minutes.",
+      "Formal-Neutral-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' one becomes acquainted with Elias, a clockmaker of great renown for his curiously exquisite creations, who inhabits a village where time flows unlike any other. Through the receipt of a subtly worded letter, he is coaxed into envisaging a clock that operates beyond the traditional confines of temporal measurement.",
+  
+  "Formal-Neutral-Personal-Simple": "In 'The Clockmaker’s Gift,' Elias, known for his unique timepieces, lives where time flows differently. He receives a letter one day, challenging him, personally, to create a clock that transcends hours and minutes.",
+      "Formal-Neutral-Personal-Moderate": "In 'The Clockmaker’s Gift,' you meet Elias, a clockmaker renowned for his distinctive timepieces, residing in a village where time seems fluid. He receives a personal challenge through a letter: to design a clock unshackled by the conventional measures of time.",
+      "Formal-Neutral-Personal-Complex": "In 'The Clockmaker’s Gift,' you encounter Elias, an enigmatic artisan revered for his peculiar yet finely crafted timepieces, residing in a village where temporal norms diverge from expectation. He receives a profound correspondence urging him to transcend the traditional confines of time, challenging him to conceive a clock devoid of hours and minutes.",
+      "Formal-Neutral-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' you are introduced to Elias, a master of horology, celebrated for his unconventional yet exquisite timepieces, dwelling in a locale where time itself meanders differently. An enigmatic letter confronts him with a personal challenge: to engineer a timepiece that eschews the usual delineations of hours and minutes, inviting a reimagining of time.",
+      "Formal-Neutral-Abstract-Simple": "In 'The Clockmaker’s Gift,' the concept of time receives new dimensions in a village, where Elias, known for his unique clocks, contemplates a letter that beckons him to craft a clock unbound by hours and minutes.",
+      "Formal-Neutral-Abstract-Moderate": "In 'The Clockmaker’s Gift,' the essence of time is explored through Elias, a renowned clockmaker, as he ponders a mysterious letter that invites him to construct a clock that operates beyond the conventional measures of time.",
+      "Formal-Neutral-Abstract-Complex": "In 'The Clockmaker’s Gift,' an exploration of temporal boundaries unfolds through Elias, a distinguished artisan celebrated for his unique horological creations, who receives an enigmatic epistle that compels him to envisage a clock liberated from the cyclic constraints of hours and minutes.",
+      "Formal-Neutral-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' the philosophical dimensions of time are intricately woven around Elias, a virtuoso of clockmaking, who contemplates a letter that subtly encourages him to defy conventional temporal limits, crafting a timepiece that transcends the usual segmentation of time.",
+      // Continue with other formality-emotionality combinations...
+  
+  "Formal-Mild-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, a friendly clockmaker renowned for his intriguing timepieces, lives in a unique village. A letter arrives, asking him to create a clock beyond the usual hours and minutes.",
+      "Formal-Mild-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, a kindly clockmaker known for his curious and beautiful clocks, resides in a village where time has a different rhythm. One day, he receives a letter that warmly requests him to craft a clock that transcends typical temporal limits.",
+      "Formal-Mild-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, an amiable and respected craftsman famed for his singularly fascinating timekeeping devices, inhabits a village that seems isolated from time's usual pace. He is cordially invited through a letter to undertake the creation of a clock that defies the accustomed constraints of hours and minutes.",
+      "Formal-Mild-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a congenial and esteemed horologist noted for his exceptionally peculiar yet captivating timepieces, dwells in a locale where conventional time appears suspended. A letter, suffused with warmth, entreats him to endeavor in crafting a clock that operates outside the traditional confines of time.",
+      "Formal-Mild-Indirect-Simple": "In 'The Clockmaker’s Gift,' Elias, known for his distinctive clocks, lives in a village with its own sense of time. A thoughtful letter one day asks him to think beyond the usual hours and minutes.",
+      "Formal-Mild-Indirect-Moderate": "In 'The Clockmaker’s Gift,' Elias, a clockmaker with a flair for unique timepieces, resides in a village where time flows at its own pace. A carefully penned letter invites him to create a clock that transcends conventional timekeeping.",
+      "Formal-Mild-Indirect-Complex": "In 'The Clockmaker’s Gift,' we learn of Elias, a clockmaker whose fame comes from crafting peculiar yet captivating timepieces. He dwells in a village where time meanders differently. One day, he receives an eloquently written letter urging him to conceive a timepiece unbound by the routine divisions of time.",
+      "Formal-Mild-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' Elias is portrayed as a distinguished artisan of time, whose residence in a village defies the typical flow of hours. A gently composed letter subtly challenges him to envision a timepiece that transcends the customary boundaries of hours and minutes.",
+      "Formal-Mild-Personal-Simple": "In 'The Clockmaker’s Gift,' you meet Elias, a maker of unusual clocks, in a village where time seems different. He personally receives a letter asking him to design a clock unbounded by time.",
+      "Formal-Mild-Personal-Moderate": "In 'The Clockmaker’s Gift,' Elias, celebrated for his unconventional timepieces, lives where time stretches and compresses. A personal letter encourages him to design a clock that challenges the traditional notions of time.",
+      "Formal-Mild-Personal-Complex": "In 'The Clockmaker’s Gift,' you will encounter Elias, a reclusive yet renowned clockmaker, residing in a village where the passage of time seems all but ordinary. A letter, deeply personal and reflective, compels him to embark on creating a clock that defies the conventional metrics of timekeeping.",
+      "Formal-Mild-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a craftsman whose reputation is built on the creation of extraordinary timepieces, finds himself in a village untouched by the march of standard time. A letter, personally addressing him, invites a profound rethinking of what defines a clock, urging beyond the familiar ticks of hours and minutes.",
+      // Continue adding all combinations using the same pattern...
+  
+  "Formal-Mild-Abstract-Simple": "In 'The Clockmaker’s Gift,' a tale unfolds where Elias, a maker of peculiar clocks, receives a letter. This narrative invites him to think abstractly about a timepiece free from hours and minutes.",
+      "Formal-Mild-Abstract-Moderate": "In 'The Clockmaker’s Gift,' the story of Elias, renowned for his distinctive clocks, comes to life. He receives a letter that prompts an exploration of time beyond the traditional, urging contemplation on a clock that operates without the standard measures of time.",
+      "Formal-Mild-Abstract-Complex": "In 'The Clockmaker’s Gift,' Elias, a craftsman distinguished by his eclectic timepieces, dwells in a village where temporal boundaries blur. Through the narrative, a letter surfaces, subtly invoking his expertise to transcend traditional timekeeping paradigms.",
+      "Formal-Mild-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' the character of Elias, an artisan revered for his unconventional horological designs, inhabits a village where conventional time lapses into ambiguity. Woven through the text, a letter emerges, delicately coaxing him to envisage a clock that defies the customary constraints of hours and minutes.",
+      "Formal-Emotive-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, passionate about his unique clocks, lives in a mystical village. He receives a compelling letter urging him to create a clock that goes beyond mere hours and minutes.",
+      "Formal-Emotive-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, fervently dedicated to his craft of unique timekeeping, resides in a village where time transcends normality. A letter arrives, passionately challenging him to conceive a clock that escapes the confines of traditional time.",
+      "Formal-Emotive-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, deeply engrossed in the art of crafting peculiar timepieces, lives in a village where time dances to an unseen rhythm. An impassioned letter confronts him, urging the creation of a clock unbound by the typical cycles of hours and minutes.",
+      "Formal-Emotive-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a clockmaker with a fervent appreciation for the atypical, resides in a village that defies temporal norms. An enthralling letter beckons him to engineer a timepiece that transcends the mere slicing of time into hours and minutes.",
+      "Formal-Emotive-Indirect-Simple": "In 'The Clockmaker’s Gift,' Elias, moved by his passion for unique clocks, resides where time stretches and contracts. A letter hints at a new challenge: to craft a clock not limited by hours and minutes.",
+      "Formal-Emotive-Indirect-Moderate": "In 'The Clockmaker’s Gift,' Elias, enchanted by his craft, inhabits a village where time behaves oddly. The story gently nudges him through a letter, filled with fervor, to envision a clock freed from the usual time constraints.",
+      "Formal-Emotive-Indirect-Complex": "In 'The Clockmaker’s Gift,' Elias, whose heart lies deeply entwined with his unusual timepieces, lives in a village apart from time’s march. A letter subtly conveys a heartfelt challenge, urging him to conceive a clock that transcends traditional temporal divisions.",
+      "Formal-Emotive-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, who passionately crafts timepieces that defy convention, resides in a temporal anomaly. Through poetic narrative, a letter delicately implores him to create a clock that operates beyond the mundane delineation of hours and minutes.",
+      // Continue with other formality-emotionality combinations...
+  
+  "Formal-Emotive-Personal-Simple": "In 'The Clockmaker’s Gift,' Elias, celebrated for his unique timepieces, feels deeply inspired as he lives in a village where time dances to its own rhythm. A letter arrives, touching his heart with a challenge to create a groundbreaking clock.",
+      "Formal-Emotive-Personal-Moderate": "In 'The Clockmaker’s Gift,' you meet Elias, whose passion for crafting unique timepieces becomes evident in a village where time moves to an unknown beat. An emotionally charged letter challenges him to invent a clock that transcends the usual boundaries.",
+      "Formal-Emotive-Personal-Complex": "In 'The Clockmaker’s Gift,' Elias, a master of horology, feels a profound connection to his craft while residing in a village where the passage of time seems altered. One day, he receives a heartfelt letter urging him to defy the conventional limits of time with a new creation.",
+      "Formal-Emotive-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, an artisan of time, dwells in a realm where seconds and minutes meld into the ether. Driven by a passionate letter, he is beckoned to harness his deepest ingenuity to forge a clock that escapes the tyranny of traditional timekeeping.",
+      "Formal-Emotive-Abstract-Simple": "In 'The Clockmaker’s Gift,' Elias, a creator of peculiar timepieces, lives in a village where time seems abstract. A letter challenges him to craft a clock, igniting his imagination beyond the simple division of hours and minutes.",
+      "Formal-Emotive-Abstract-Moderate": "In 'The Clockmaker’s Gift,' Elias resides in a village where time flows uniquely, crafting timepieces that capture more than moments. A poignant letter arrives, suggesting he create a clock not bound by traditional hours, an idea that stirs his soul.",
+      "Formal-Emotive-Abstract-Complex": "In 'The Clockmaker’s Gift,' the tale of Elias, who dwells in a village where conventional time loses meaning, unfolds. His craft of creating enigmatic timepieces is challenged by a letter, urging him to conceptualize a clock that defies the structured confines of hours and minutes.",
+      "Formal-Emotive-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a visionary in horological arts, resides where the very fabric of time weaves differently. Compelled by a deeply emotive letter, he contemplates a clock that would exist beyond the mundane cycles of time, a poetic defiance of temporal norms.",
+      "Formal-Dramatic-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, known for his unique clocks, is thrust into an epic challenge by a mysterious letter, urging him to create a clock that transcends mere hours and minutes.",
+      "Formal-Dramatic-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, a renowned clockmaker, faces a momentous task when a cryptic letter arrives, compelling him to craft a clock that breaks the shackles of conventional timekeeping.",
+      "Formal-Dramatic-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, an enigmatic artisan celebrated for his marvelously unique timepieces, resides in an ancient village where the passage of time defies expectation. Abruptly, a profound and mysterious letter arrives, demanding he engineer a clock that transcends the archaic constraints of hours and minutes.",
+      "Formal-Dramatic-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a clockmaker of singular genius, known for his lavishly peculiar timekeepers, dwells in a village lost to time. Suddenly, a cryptic and portentous letter beckons, compelling him to forge a clock unbound by the temporal shackles of conventional measure.",
+      // Continue with other formality-emotionality combinations...
+  
+  "Formal-Dramatic-Indirect-Simple": "In 'The Clockmaker’s Gift,' the tale unwinds as Elias, a clockmaker with a penchant for the extraordinary, receives a portentous letter in his quaint village, urging him to create a clock unlike any other.",
+      "Formal-Dramatic-Indirect-Moderate": "In 'The Clockmaker’s Gift,' Elias, a master of horology, is enveloped in the mystique of a village where time stands still. Through a letter filled with enigmatic urgency, he is subtly prompted to conceive a clock that defies the usual boundaries of time.",
+      "Formal-Dramatic-Indirect-Complex": "In 'The Clockmaker’s Gift,' Elias, a creator of bizarre yet captivating timepieces, resides where time flows like a languid river. He receives a letter, cloaked in urgency and mystery, hinting at the creation of a clock that eschews all known temporal confines.",
+      "Formal-Dramatic-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, renowned throughout the realms for his extraordinary and whimsical chronometers, inhabits a village where time dances to its own tune. A letter, fraught with destiny, subtly commands his expertise to birth a clock that transcends traditional time.",
+      "Formal-Dramatic-Personal-Simple": "In 'The Clockmaker’s Gift,' Elias, who crafts peculiar timepieces, is directly challenged by a mysterious letter to create a clock that breaks the norm of hours and minutes, in his timeless village.",
+      "Formal-Dramatic-Personal-Moderate": "In 'The Clockmaker’s Gift,' Elias, known for his intriguing watches, faces a personal ordeal when a cryptic letter arrives, urging him to construct a clock that defies the usual temporal limits, in a place where time behaves differently.",
+      "Formal-Dramatic-Personal-Complex": "In 'The Clockmaker’s Gift,' Elias, a recluse with a mastery over the craft of horology, is personally summoned through a mysterious letter. It propels him toward the ambitious task of creating a clock that liberates itself from the conventional chains of time.",
+      "Formal-Dramatic-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a visionary in the realm of timekeeping, is profoundly stirred by a letter filled with enigmatic fervor. It beseeches him to defy the ancient rules of time, crafting a clock that operates beyond the simple cycles of hours and minutes.",
+      "Formal-Dramatic-Abstract-Simple": "In 'The Clockmaker’s Gift,' amidst the ancient whispers of a timeless village, Elias, a clockmaker of rare artistry, receives a foreboding letter. This missive implores him to transcend the very essence of time.",
+      "Formal-Dramatic-Abstract-Moderate": "In 'The Clockmaker’s Gift,' within a village where shadows linger long and deep, Elias, famed for his unique horological creations, is confronted with a cryptic letter. It beckons him to forge a clock unbound by the earthly ticks of hours and minutes.",
+      "Formal-Dramatic-Abstract-Complex": "In 'The Clockmaker’s Gift,' enveloped by the mystic veil of a village where time dances to an ancient rhythm, Elias, a master of the horological arts, receives an ominous epistle. This document, steeped in mystery, challenges him to envision a clock that defies the conventional divisions of time.",
+      "Formal-Dramatic-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' beneath the eternal gaze of a village untouched by temporal norms, Elias, a virtuoso of clockmaking, is bestowed with a cryptic and portentous letter. It compels him to conceptualize a timepiece that transcends the mundane confines of minutes and hours, hinting at the infinite.",
+      // Continue adding all combinations using the same pattern...
+  
+  "Semi-formal-Neutral-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, known for his distinctive clocks, resides in a unique village. He receives a direct request through a letter to create a clock not limited by standard time measurements.",
+      "Semi-formal-Neutral-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, a clockmaker celebrated for his unusual timepieces, lives in a village where time seems elusive. One day, he receives a straightforward letter urging him to craft a clock that operates beyond typical hours and minutes.",
+      "Semi-formal-Neutral-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, a clockmaker renowned for his innovative yet quaint timekeeping devices, inhabits a village that defies the usual temporal flow. He is suddenly presented with a letter, charging him to design a clock free from the conventional constraints of time measurement.",
+      "Semi-formal-Neutral-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a connoisseur of eccentric horology, dwells within a village where time bends to unknown whims. He is tasked through an explicit letter to conceive a clock that ignores the traditional boundaries of hours and minutes, pushing the limits of time itself.",
+      "Semi-formal-Neutral-Indirect-Simple": "In 'The Clockmaker’s Gift,' Elias, a creator of unique clocks, lives in a peculiar village. A letter arrives one day, hinting at the need for a clock that goes beyond ordinary time.",
+      "Semi-formal-Neutral-Indirect-Moderate": "In 'The Clockmaker’s Gift,' Elias, noted for his special timepieces, makes his home in a village where conventional time seems altered. A subtly suggestive letter soon encourages him to undertake the creation of a clock that transcends the usual hour and minute divisions.",
+      "Semi-formal-Neutral-Indirect-Complex": "In the tale of 'The Clockmaker's Gift,' we are introduced to Elias, whose mastery in crafting peculiar yet stunning timepieces sets him apart in his small village. A letter arrives, subtly coaxing him to challenge the conventional boundaries of time with a new creation.",
+      "Semi-formal-Neutral-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' the character of Elias emerges, a craftsman distinguished by his creation of fascinating timepieces, living where time appears to bend. An intriguing letter suggests he transcend traditional time, urging the conception of a profoundly unconventional clock.",
+      "Semi-formal-Neutral-Personal-Simple": "In 'The Clockmaker’s Gift,' you learn about Elias, who crafts unique clocks in a village where time doesn’t follow normal rules. He’s personally challenged by a letter to make a clock that goes beyond hours and minutes.",
+      "Semi-formal-Neutral-Personal-Moderate": "In 'The Clockmaker’s Gift,' Elias, known for his distinctive timepieces, resides in a village where time stretches and compresses. He receives a letter that personally invites him to design a clock that isn't limited to the usual measures of time.",
+      "Semi-formal-Neutral-Personal-Complex": "In 'The Clockmaker’s Gift,' we engage with Elias, a creator of intricate and peculiar clocks, living in a village where the flow of time is peculiar. A letter he receives calls on him personally to forge a timepiece that defies the standard constraints of hours and minutes.",
+      "Semi-formal-Neutral-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, an artisan celebrated for his exquisitely unique clocks, finds himself in a village detached from the temporal norms. A letter challenges him personally to conceptualize a clock that transcends the conventional demarcations of time.",
+      // Add the remaining combinations...
+  
+  "Semi-formal-Neutral-Abstract-Simple": "In 'The Clockmaker’s Gift,' Elias crafts unique clocks in a village untouched by time. A letter arrives, abstractly challenging him to create a clock beyond hours and minutes.",
+      "Semi-formal-Neutral-Abstract-Moderate": "In 'The Clockmaker’s Gift,' Elias, famed for his peculiar timepieces, lives where time seems to wander freely. An abstract challenge arrives via letter, urging the creation of a clock that escapes traditional time measures.",
+      "Semi-formal-Neutral-Abstract-Complex": "In 'The Clockmaker’s Gift,' Elias, renowned for his exquisite yet unconventional timepieces, resides in a village where conventional time is a fluid concept. An abstractly worded letter invites him to transcend the usual temporal barriers with a revolutionary clock design.",
+      "Semi-formal-Neutral-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' Elias is an artisan of time, dwelling in a place where the usual measures of time seem irrelevant. A letter, abstract in its essence, compels him to envision a clock that operates outside the confines of hours and minutes.",
+      "Semi-formal-Mild-Direct-Simple": "In 'The Clockmaker's Gift,' Elias, known for his quirky clocks, lives in a unique village. He gets a letter urging him to build a clock that goes beyond typical time limits.",
+      "Semi-formal-Mild-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, a craftsman famous for his peculiar clocks, resides in a village where time seems elusive. He receives a letter that challenges him to create a clock not limited by hours and minutes.",
+      "Semi-formal-Mild-Direct-Complex": "In 'The Clockmaker’s Gift,' the protagonist, Elias, a clockmaker celebrated for his extraordinary and unusual timepieces, lives in a quaint village where time appears to flow uniquely. He is challenged through a cryptic letter to conceive a clock that transcends conventional time boundaries.",
+      "Semi-formal-Mild-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a reclusive yet distinguished maker of enigmatic timekeeping devices, inhabits a village where time behaves in a peculiar fashion. A letter arrives, spurring him to design a clock that eschews the typical constraints of hours and minutes, challenging the very essence of time itself.",
+      "Semi-formal-Mild-Indirect-Simple": "In 'The Clockmaker’s Gift,' we hear of Elias, a maker of interesting clocks, living in a village where time is different. A letter he receives hints at creating a clock without the usual time limits.",
+      "Semi-formal-Mild-Indirect-Moderate": "In 'The Clockmaker’s Gift,' Elias is known for his unique timepieces and resides in a village where the passage of time feels altered. A subtly worded letter encourages him to pursue the crafting of a clock that defies the usual hour and minute constraints.",
+      "Semi-formal-Mild-Indirect-Complex": "In 'The Clockmaker’s Gift,' the narrative gently introduces Elias, a clockmaker renowned for his eclectic and finely crafted timepieces, living in a locale where time operates differently. He receives a letter, artfully composed, that entices him to undertake the creation of a clock freed from the conventional shackles of time measurement.",
+      "Semi-formal-Mild-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' Elias is portrayed as a master of his craft, renowned for the curiously delightful clocks he creates in a village where time seems to wander at its own pace. An elegantly phrased letter arrives, encouraging him to embark on the creation of a clock that transcends the traditional framework of time.",
+      // Continue adding all combinations using the same pattern...
+  
+  "Semi-formal-Mild-Personal-Simple": "In 'The Clockmaker’s Gift,' Elias, known for his unusual clocks, is personally challenged by a letter to create a clock that ignores the usual constraints of time, in a village where time flows differently.",
+      "Semi-formal-Mild-Personal-Moderate": "In 'The Clockmaker’s Gift,' Elias, the local clockmaker known for his bizarre but beautiful timepieces, lives in a village where time stretches and compresses. He receives a personal letter challenging him to design a clock that isn't confined by hours and minutes.",
+      "Semi-formal-Mild-Personal-Complex": "In 'The Clockmaker’s Gift,' you will discover Elias, a clockmaker beloved for his extraordinary and peculiar timepieces, residing in a village where time follows its own rhythm. One day, he receives a letter, deeply personal in nature, urging him to construct a clock that transcends the usual boundaries of hours and minutes.",
+      "Semi-formal-Mild-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' you are introduced to Elias, a master of horology, esteemed for his intricate and unusual clocks, living in a village apart from time’s normal passage. A letter arrives one day, touching him personally, and inspires him to envision a clock that ignores the constraints of traditional timekeeping.",
+      "Semi-formal-Mild-Abstract-Simple": "In 'The Clockmaker’s Gift,' Elias, a clockmaker with a flair for the unique, lives where time swirls around differently. A letter arrives one day, hinting abstractly at the idea of creating a clock free from hours and minutes.",
+      "Semi-formal-Mild-Abstract-Moderate": "In 'The Clockmaker’s Gift,' Elias, the clockmaker with a passion for quirky timepieces, resides in a village that defies time's usual pace. An intriguing letter reaches him, abstractly challenging him to envisage a clock beyond the conventional hours and minutes.",
+      "Semi-formal-Mild-Abstract-Complex": "In 'The Clockmaker’s Gift,' Elias, a clockmaker renowned for his peculiar yet mesmerizing timepieces, lives in a village where time seems abstracted from reality. He receives a thought-provoking letter, inviting him to design a clock that defies the conventional framework of time.",
+      "Semi-formal-Mild-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a connoisseur of unique horological artifacts, dwells in a village where the concept of time stretches and folds. An intriguing letter challenges him to create a timepiece that transcends the mundane limitations of hours and minutes, prompting deep reflections on time itself.",
+      // Continuation for other types and combinations
+  
+  "Semi-formal-Emotive-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, a clockmaker passionate about his unique creations, lives in a village where time flows differently. He receives a compelling letter urging him to create a clock not limited by hours and minutes.",
+      "Semi-formal-Emotive-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, a clockmaker renowned for his distinct and heart-stirring timepieces, resides in a village where time seems to pause. Directly, he is tasked via an impassioned letter to craft a clock that breaks free from the usual constraints of time.",
+      "Semi-formal-Emotive-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, a craftsman whose love for intricate and unusual clocks is unmatched, lives in a village where time appears to bend. A poignant letter directly challenges him to design a clock unbound by the traditional cycles of time, compelling him to rethink the essence of horology.",
+      "Semi-formal-Emotive-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a clockmaker with an intense passion for his unique and thought-provoking creations, dwells in a village where the flow of time is an enigma. He receives a deeply emotional letter that directly impels him to conceive a clock that defies the orthodox dimensions of time.",
+      "Semi-formal-Emotive-Indirect-Simple": "In 'The Clockmaker’s Gift,' Elias lives in a quaint village, crafting timepieces that capture the heart. A letter arrives, sparking his passion to create a clock beyond time itself.",
+      "Semi-formal-Emotive-Indirect-Moderate": "In 'The Clockmaker’s Gift,' Elias, a beloved artisan of unique clocks, dwells in a village where time dances to its own rhythm. A letter inspires him to imagine a clock not confined by hours or minutes.",
+      "Semi-formal-Emotive-Indirect-Complex": "In 'The Clockmaker’s Gift,' Elias, celebrated for his marvelously peculiar timepieces, resides in a village where time itself meanders. He receives an evocative letter, challenging him to conceive a clock liberated from the conventional dimensions of time.",
+      "Semi-formal-Emotive-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a clockmaker with a rare gift for creating enigmatic timepieces, lives in a village where time weaves its own narrative. A poetic letter stirs his soul, urging him to forge a clock that transcends the mundane cycles of hours and minutes.",
+      "Semi-formal-Emotive-Personal-Simple": "In 'The Clockmaker’s Gift,' Elias, known for his heartfelt timepieces, receives a letter that speaks directly to his soul, challenging him to create a timeless clock.",
+      "Semi-formal-Emotive-Personal-Moderate": "In 'The Clockmaker’s Gift,' you meet Elias, whose timepieces are not only tools but tales. A heartfelt letter directly challenges him to create a clock that defies the usual constraints of time.",
+      "Semi-formal-Emotive-Personal-Complex": "In 'The Clockmaker’s Gift,' Elias, a craftsman whose soul is intertwined with his creations, receives a compelling letter. It calls on him personally to defy the traditional limits of time with a new clock.",
+      "Semi-formal-Emotive-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' discover Elias, whose craftsmanship extends beyond mere mechanics to touch the fabric of time. A personal and poignant letter beckons him to craft a clock that will redefine the essence of measuring moments.",
+      // Additional combinations continue in this pattern...
+  
+  "Semi-formal-Emotive-Abstract-Simple": "In 'The Clockmaker’s Gift,' Elias creates clocks that do more than measure time—they evoke feelings. A letter arrives, hinting at the possibility of a clock without limits.",
+      "Semi-formal-Emotive-Abstract-Moderate": "In 'The Clockmaker’s Gift,' Elias, who shapes time with his hands, finds a letter suggesting an abstract concept: a clock that escapes the bounds of time, crafted not just to tell but to evoke time.",
+      "Semi-formal-Emotive-Abstract-Complex": "In 'The Clockmaker’s Gift,' the reclusive Elias, a master of timepieces that defy ordinary expectations, inhabits a village that seems untouched by time's strict progression. A peculiar and intriguing letter reaches him, sparking his passion to conceive a clock unbound by hours and minutes, challenging the very essence of time.",
+      "Semi-formal-Emotive-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, who crafts timepieces of unparalleled peculiarity, resides in a village where conventional time ceases to dictate. An evocative letter propels him into the conceptual challenge of designing a clock that operates beyond the familiar confines of temporal measurement, where minutes and hours dissolve into the abstract.",
+      "Semi-formal-Dramatic-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, an eccentric clockmaker, receives a life-changing letter. He is compelled to create a clock that escapes the bounds of minutes and hours, thrusting him into a timeless narrative.",
+      "Semi-formal-Dramatic-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, a solitary figure known for his unique timepieces, receives a dramatic letter. He is urged to forge a clock that transcends conventional time, casting aside hours and minutes in a daring narrative leap.",
+      "Semi-formal-Dramatic-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, famed for his eccentric yet exquisite clocks, is confronted with a dramatic epistle that entreats him to construct a clock liberated from the mundane constraints of hours and minutes, an endeavor that would redefine the essence of time itself.",
+      "Semi-formal-Dramatic-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, known far and wide for his peculiar yet marvelous timekeeping creations, receives a compelling letter. It charges him with the formidable task of creating a timepiece that transcends the traditional bounds of hours and minutes, challenging the very nature of time.",
+      "Semi-formal-Dramatic-Indirect-Simple": "In 'The Clockmaker’s Gift,' a letter finds its way to Elias, whose clocks redefine traditional timekeeping. It hints at the need for a clock free from the tyranny of hours and minutes, igniting a fierce narrative.",
+      "Semi-formal-Dramatic-Indirect-Moderate": "In 'The Clockmaker’s Gift,' Elias, a reclusive artisan known for his peculiar clocks, receives a letter subtly coercing him to challenge the norms of time with a new creation, one that does not adhere to the typical hours and minutes.",
+      "Semi-formal-Dramatic-Indirect-Complex": "In 'The Clockmaker’s Gift,' through the mysterious words of a letter, Elias, renowned for his unconventional timepieces, is seductively beckoned to transcend traditional notions of time with a clock that defies the regular cyclical constraints.",
+      "Semi-formal-Dramatic-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a creator of timepieces that capture the imagination, is enveloped by the words of a cryptic letter. It beckons him toward the conceptual horizon of creating a clock that exists beyond the familiar cycle of hours and minutes, challenging him to rethink time’s fabric.",
+      // Further combinations can be added following the same pattern...
+  
+   "Semi-formal-Dramatic-Personal-Simple": "In 'The Clockmaker’s Gift,' Elias, who crafts peculiar timepieces, is directly challenged by a mysterious letter to create a clock that breaks the norm of hours and minutes, in his timeless village.",
+      "Semi-formal-Dramatic-Personal-Moderate": "In 'The Clockmaker’s Gift,' Elias, known for his intriguing watches, faces a personal ordeal when a cryptic letter arrives, urging him to construct a clock that defies the usual temporal limits, in a place where time behaves differently.",
+      "Semi-formal-Dramatic-Personal-Complex": "In 'The Clockmaker’s Gift,' Elias, a recluse with a mastery over the craft of horology, is personally summoned through a mysterious letter. It propels him toward the ambitious task of creating a clock that liberates itself from the conventional chains of time.",
+      "Semi-formal-Dramatic-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a visionary in the realm of timekeeping, is profoundly stirred by a letter filled with enigmatic fervor. It beseeches him to defy the ancient rules of time, crafting a clock that operates beyond the simple cycles of hours and minutes.",
+      "Semi-formal-Dramatic-Abstract-Simple": "In 'The Clockmaker’s Gift,' amidst the ancient whispers of a timeless village, Elias, a clockmaker of rare artistry, receives a foreboding letter. This missive implores him to transcend the very essence of time.",
+      "Semi-formal-Dramatic-Abstract-Moderate": "In 'The Clockmaker’s Gift,' within a village where shadows linger long and deep, Elias, famed for his unique horological creations, is confronted with a cryptic letter. It beckons him to forge a clock unbound by the earthly ticks of hours and minutes.",
+      "Semi-formal-Dramatic-Abstract-Complex": "In 'The Clockmaker’s Gift,' enveloped by the mystic veil of a village where time dances to an ancient rhythm, Elias, a master of the horological arts, receives an ominous epistle. This document, steeped in mystery, challenges him to envision a clock that defies the conventional divisions of time.",
+      "Semi-formal-Dramatic-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' beneath the eternal gaze of a village untouched by temporal norms, Elias, a virtuoso of clockmaking, is bestowed with a cryptic and portentous letter. It compels him to conceptualize a timepiece that transcends the mundane confines of minutes and hours, hinting at the infinite.",
+      "Informal-Neutral-Direct-Simple": "Elias, a quirky clockmaker, lives in a village where time acts weirdly. One day, he gets a letter telling him to make a clock that isn’t limited by hours and minutes.",
+      "Informal-Neutral-Direct-Moderate": "Elias, a quirky and talented clockmaker, lives in a small village where time doesn’t seem to follow the usual rules. He receives a straightforward letter challenging him to create a clock that goes beyond the normal hours and minutes.",
+      "Informal-Neutral-Direct-Complex": "In 'The Clockmaker's Gift,' Elias, a clockmaker famed for his quirky yet stunning creations, lives in a village where time isn't quite normal. He gets a letter one day, urging him to build a clock free from the usual hour and minute boundaries.",
+      "Informal-Neutral-Direct-Sophisticated": "In 'The Clockmaker's Gift,' Elias, known in his small village for his peculiar yet magnificent timepieces, receives an intriguing letter. It challenges him to conceive a clock that transcends the conventional passage of hours and minutes, crafting time anew.",
+      // Continue adding more combinations as needed...
+  
+  "Informal-Neutral-Indirect-Simple": "In 'The Clockmaker's Gift,' Elias, who makes unusual clocks, lives in a place where time acts weird. One day, he gets a letter that kinda hints he should make a clock that isn’t tied to ticking away hours and minutes.",
+      "Informal-Neutral-Indirect-Moderate": "In 'The Clockmaker's Gift,' Elias, a clockmaker with a flair for the odd, gets a letter in his quirky village home. It subtly nudges him toward creating a clock that doesn’t stick to the usual hours and minutes.",
+      "Informal-Neutral-Indirect-Complex": "In 'The Clockmaker's Gift,' Elias, a creator of fascinating yet strange timepieces, resides where time stretches and compresses. A mysterious letter hints at a new challenge: to design a clock liberated from the constraints of hours and minutes.",
+      "Informal-Neutral-Indirect-Sophisticated": "In 'The Clockmaker's Gift,' you’ll find Elias, a maker of the most intriguing timepieces, living where time bends and twists. An enigmatic letter lands on his doorstep, subtly coaxing him to forge a clock unbound by the traditional metrics of time.",
+      "Informal-Neutral-Personal-Simple": "In 'The Clockmaker's Gift,' Elias, a guy who makes cool, weird clocks, lives in a village where time’s all over the place. He gets this letter one day, basically daring him to make a clock that’s not just about ticking away time.",
+      "Informal-Neutral-Personal-Moderate": "In 'The Clockmaker's Gift,' meet Elias, who crafts unusual clocks in a village where time doesn’t follow the rules. He receives a personal letter challenging him to create a clock that goes beyond mere hours and minutes.",
+      "Informal-Neutral-Personal-Complex": "In 'The Clockmaker's Gift,' Elias, a clockmaker renowned for his outlandish and beautiful timepieces, resides in a quaint village that defies the normal flow of time. He’s handed a letter that personally challenges him to envision and craft a clock unchained by the usual temporal restrictions.",
+      "Informal-Neutral-Personal-Sophisticated": "In 'The Clockmaker's Gift,' you’re introduced to Elias, an artisan of time with a penchant for the extraordinary, living where time itself seems to wander. A letter arrives, intimately challenging him to create a clock that eschews the mundane cycles of hours and minutes, redefining time itself.",
+      "Informal-Neutral-Abstract-Simple": "Elias, the clockmaker with a knack for weird clocks, lives in a village where time dances to its own tune. He gets a letter pushing him to think beyond hours and minutes.",
+      "Informal-Neutral-Abstract-Moderate": "Elias, known around his village for his quirky timepieces, gets a strange letter. It dares him to create a clock that's not limited to just ticking away hours and minutes.",
+      "Informal-Neutral-Abstract-Complex": "In his village, Elias is the go-to guy for bizarre clocks. One day, a cryptic letter arrives, urging him to conceptualize a clock that escapes the tyranny of hours and minutes.",
+      "Informal-Neutral-Abstract-Sophisticated": "Elias, the village clockmaker famed for his odd yet fascinating creations, receives a letter one unusual morning. It challenges his conventional skills, proposing he devise a clock free from the constraints of time itself.",
+      // Continue adding more combinations as needed...
+  
+   "Informal-Mild-Direct-Simple": "Elias, who makes peculiar clocks, lives in a village out of sync with time. A letter arrives, pushing him to build a clock without the usual time limits.",
+      "Informal-Mild-Direct-Moderate": "Elias, the quirky clockmaker from a slow-paced village, gets a letter. It challenges him to create a clock that doesn't just mark hours and minutes.",
+      "Informal-Mild-Direct-Complex": "In a village where time meanders, lives Elias, a maker of odd clocks. A letter lands in his hands, challenging him to craft a clock that defies the conventional measurement of time.",
+      "Informal-Mild-Direct-Sophisticated": "Elias, creator of unique timepieces, resides in a village that defies the usual pace of life. One day, he's tasked by a letter to create a clock that isn't bound by hours or minutes.",
+      "Informal-Mild-Indirect-Simple": "Elias, who crafts unusual clocks, gets a hint from a letter: make a clock that ignores usual time rules.",
+      "Informal-Mild-Indirect-Moderate": "Elias, with his flair for unique clocks, lives where time bends differently. A letter subtly nudges him to imagine a clock beyond the normal confines of hours and minutes.",
+      "Informal-Mild-Indirect-Complex": "Elias, the clockmaker with a knack for crafting the strangest yet captivating timepieces, makes his home in a quaint village where time seems to bend. A peculiar letter finds its way to him, hinting at the challenge of creating a clock that escapes the typical bounds of hours and minutes.",
+      "Informal-Mild-Indirect-Sophisticated": "In the tale of 'The Clockmaker's Gift,' we wander into the life of Elias, a craftsman famed for his wonderfully odd clocks, residing in a village where time dances to its own tune. One day, a cryptic letter arrives, weaving words that suggest a challenge: to conceive a clock free from the tyranny of ticking hands.",
+      "Informal-Mild-Personal-Simple": "Elias, known around town for his unusual clocks, lives where time doesn't stick to the rules. He gets a letter one day, asking him directly to think up a clock that's not limited to just hours and minutes.",
+      "Informal-Mild-Personal-Moderate": "Elias, the local clockmaker known for his bizarre but beautiful timepieces, lives in a village where time flows its own way. He receives a personal letter challenging him to design a clock that isn't confined by hours and minutes.",
+      "Informal-Mild-Personal-Complex": "In 'The Clockmaker's Gift,' we meet Elias, who crafts timepieces that capture the imagination. Living in a village where time meanders, he receives a heartfelt letter challenging him to create a clock that breaks free from the traditional constraints of timekeeping.",
+      "Informal-Mild-Personal-Sophisticated": "In the enchanting narrative of 'The Clockmaker's Gift,' Elias emerges as a creator of peculiar yet mesmerizing clocks, residing in a village untouched by conventional time. A letter, filled with warmth and curiosity, beckons him to craft a clock unbound by the routine measures of hours and minutes.",
+      // Further combinations can be added following the same pattern...
+  
+  "Informal-Mild-Abstract-Simple": "Elias, a clockmaker with a flair for the unique, lives where time swirls around differently. A letter arrives one day, hinting abstractly at the idea of creating a clock free from hours and minutes.",
+      "Informal-Mild-Abstract-Moderate": "Elias, the clockmaker with a passion for quirky timepieces, resides in a village that defies time's usual pace. An intriguing letter reaches him, abstractly challenging him to envisage a clock beyond the conventional hours and minutes.",
+      "Informal-Mild-Abstract-Complex": "In 'The Clockmaker's Gift,' Elias, renowned for his extraordinary and whimsical clocks, lives in a place where time doesn't follow the usual rules. A mysterious letter, filled with riddles and hints, challenges him to think beyond the common division of time.",
+      "Informal-Mild-Abstract-Sophisticated": "In the story of 'The Clockmaker's Gift,' Elias, a creator of timepieces that defy ordinary description, resides in a village where time flows uniquely. One day, a cryptically poetic letter arrives, challenging him to devise a clock that transcends the mere counting of hours and minutes.",
+      "Informal-Emotive-Direct-Simple": "Elias, a quirky clockmaker in a small village, gets a letter one day challenging him to create a clock that's free from the usual time limits.",
+      "Informal-Emotive-Direct-Moderate": "Elias, the eccentric clockmaker, lives in a village where time bends differently. He receives a letter urging him to invent a clock not tied to hours and minutes.",
+      "Informal-Emotive-Direct-Complex": "Elias, a reclusive clockmaker known for his unusual yet fascinating timepieces, resides in a small village where time doesn't follow normal rules. A challenging letter arrives, asking him to create a clock that escapes the conventional tracking of time.",
+      "Informal-Emotive-Direct-Sophisticated": "In a quaint village, Elias, an enigmatic clockmaker famous for his peculiar, captivating clocks, receives a compelling letter. It dares him to conceive a clock liberated from the constraints of mere hours and minutes, a true innovation in timekeeping.",
+      "Informal-Emotive-Indirect-Simple": "Elias, known for his strange clocks, lives in a village where time stretches weirdly. He gets a letter, hinting at crafting a clock beyond ordinary time.",
+      "Informal-Emotive-Indirect-Moderate": "Elias, the beloved oddball clockmaker, spends his days in a village where time seems to dance. A mysterious letter arrives, subtly nudging him to build a clock not bound by hours and minutes.",
+      "Informal-Emotive-Indirect-Complex": "In a place where time flows unlike anywhere else, Elias, with his passion for quirky timepieces, faces a new challenge. A cryptic letter suggests he should attempt to create a clock that transcends traditional boundaries of time measurement.",
+      "Informal-Emotive-Indirect-Sophisticated": "In his village workshop, where time meanders at its own pace, Elias, a craftsman of wonderfully eccentric clocks, receives an intriguing letter. It slyly proposes the creation of a clock that defies the typical divisions of time, a true challenge for his craft.",
+      // Continue adding more combinations as needed...
+  
+  "Informal-Emotive-Personal-Simple": "Elias, a unique clockmaker, gets a personal letter one day in his village where time flows oddly, challenging him to make a clock without usual time limits.",
+      "Informal-Emotive-Personal-Moderate": "Elias, the village clockmaker known for his offbeat timepieces, receives a personal letter challenging him. He's urged to design a clock that isn't confined by hours and minutes, in a place where time lingers.",
+      "Informal-Emotive-Personal-Complex": "In 'The Clockmaker’s Gift,' Elias, a recluse with a knack for crafting quirky clocks, lives in a village where time dances to its own tune. He gets this wild letter one day, daring him to break all rules and create a clock that doesn’t slave away counting hours and minutes.",
+      "Informal-Emotive-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' meet Elias, a lone genius of the horological arts, inhabiting a village where time swirls mysteriously. One day, he's thrown a challenge via a cryptic letter: to conjure a timepiece that transcends the mundane march of minutes and hours, weaving instead the very fabric of time.",
+      "Informal-Emotive-Abstract-Simple": "'The Clockmaker’s Gift' spins the tale of Elias, famed for his odd clocks, living where time seems all twisted. He’s hit with a letter that pushes him to think beyond hours and minutes to craft something revolutionary.",
+      "Informal-Emotive-Abstract-Moderate": "In 'The Clockmaker’s Gift,' Elias, famed for his unusual timepieces, lives in a village out of sync with time. He’s challenged by a mysterious letter to create a clock that's not confined by the usual hours and minutes but something much more profound.",
+      "Informal-Emotive-Abstract-Complex": "In 'The Clockmaker’s Gift,' Elias is a creator of bizarre yet beautiful timepieces, residing in a village where time flows like a lazy river. He receives an enigmatic letter that compels him to forge a timepiece liberated from the tyranny of hours and minutes, inviting him to sculpt time itself.",
+      "Informal-Emotive-Abstract-Sophisticated": "'The Clockmaker’s Gift' reveals Elias, an artisan of the arcane in clockmaking, dwelling in a place where time meanders and mingles freely. An enigmatic epistle beckons him to create not just a clock but a portal to new dimensions of time, unbound by hours or minutes.",
+      "Informal-Dramatic-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, who makes strange clocks, lives where time bends weirdly. A bold letter arrives, demanding he build a clock that transcends mere hours and minutes.",
+      "Informal-Dramatic-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, known for his peculiar clocks, resides in a village where time acts strangely. Suddenly, he receives a bold letter challenging him to create a clock free from the constraints of time as we know it.",
+      "Informal-Dramatic-Direct-Complex": "'The Clockmaker’s Gift' follows Elias, a craftsman of eccentric and exquisite timepieces, in a village where time behaves unpredictably. He receives a forthright letter challenging him to transcend traditional boundaries and engineer a clock that defies the conventional passage of hours and minutes.",
+      "Informal-Dramatic-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a maverick in the art of clockmaking, finds himself in a village where time stretches and contracts mysteriously. He is confronted by a letter, direct and demanding, that dares him to devise a clock that eschews the common measure of time, urging a leap into a timeless realm.",
+      // Add more combinations as required...
+  
+  "Informal-Dramatic-Indirect-Simple": "Elias, this quirky clockmaker in a tiny village, gets a wild letter. It dares him to make a clock that forgets all about hours and minutes.",
+      "Informal-Dramatic-Indirect-Moderate": "Elias, the eccentric clockmaker from a village where time's all wonky, receives a strange letter. It subtly pushes him to create a clock that’s not enslaved by the usual ticks of time.",
+      "Informal-Dramatic-Indirect-Complex": "In 'The Clockmaker’s Gift,' Elias, famed for his bizarre yet brilliant timepieces, is drawn into a mysterious quest by a cryptic letter challenging him to conceive a clock that escapes the tyranny of hours and minutes.",
+      "Informal-Dramatic-Indirect-Sophisticated": "Elias, a master of unique clocks, inhabits a village lost in time. A beguiling letter arrives, weaving words that urge him to defy the ancient boundaries of time with a clock that could rewrite rules.",
+      "Informal-Dramatic-Personal-Simple": "Elias, that oddball clockmaker, just got the craziest letter ever. It’s challenging him personally to build a clock that doesn’t care for hours or minutes.",
+      "Informal-Dramatic-Personal-Moderate": "Elias, our beloved and peculiar clockmaker, finds himself holding a letter that personally challenges him to craft a clock that breaks free from the usual confines of time.",
+      "Informal-Dramatic-Personal-Complex": "Elias, the village’s own genius of gears and cogs, received a letter that struck a deep chord. It urged him to push past conventional limits and create a clock that could perhaps alter the fabric of time itself.",
+      "Informal-Dramatic-Personal-Sophisticated": "Elias, known for turning the art of clockmaking on its head, confronts a personal challenge delivered through an enigmatic letter. It beckons him to dare beyond the mundane march of minutes, towards crafting a timepiece that could defy the very essence of time.",
+      "Informal-Dramatic-Abstract-Simple": "Elias, that quirky clockmaker, lives where time dances to its own tune. His latest challenge? A letter that dares him to build a clock free from time’s usual chains.",
+      "Informal-Dramatic-Abstract-Moderate": "In his quaint village, Elias, a maker of peculiar clocks, contemplates a letter from the unknown. It challenges the core of his craft: to create a clock that transcends the simple cycle of hours and minutes.",
+      "Informal-Dramatic-Abstract-Complex": "In 'The Clockmaker's Gift,' Elias, an eccentric who crafts bizarre clocks, lives in a bizarre village where time dances to its own tune. Then, a letter lands, daring him to conjure a clock that defies all known laws of time...",
+      "Informal-Dramatic-Abstract-Sophisticated": "In 'The Clockmaker's Gift,' Elias, known for his curious timepieces, inhabits a village where time weaves its own strange patterns. A cryptic letter beckons, challenging him to dream up a clock freed from the tyranny of hours and minutes...",
+      // Add more combinations as required...
+  
+  "Casual-Neutral-Direct-Simple": "'The Clockmaker's Gift' is about Elias, a dude who makes weird clocks. He lives where time acts weird. Gets a letter one day, telling him to make a clock that doesn’t care about time.",
+      "Casual-Neutral-Direct-Moderate": "'The Clockmaker's Gift'—that’s about Elias, a guy who's big on crafting strange clocks. Lives in a place where time's all wonky. One day, he gets this letter, pushes him to build a clock that's not about hours or minutes.",
+      "Casual-Neutral-Direct-Complex": "In 'The Clockmaker's Gift,' you meet Elias, this clockmaker who's into making out-there timepieces. Lives in a quirky village where time doesn’t quite behave. A letter hits him one day, challenges him to create a clock that’s all out of whack with normal time.",
+      "Casual-Neutral-Direct-Sophisticated": "'The Clockmaker's Gift' circles around Elias, a maker of the oddest clocks. He's set up in a village where time spins differently. One day, he’s hit with a letter that dares him to design a clock without the confines of hours and minutes.",
+      "Casual-Neutral-Indirect-Simple": "In 'The Clockmaker’s Gift,' it’s about Elias who makes these weird clocks. Lives in a place where time’s off. Gets this letter asking him, kinda roundabout, to make a clock that doesn’t follow time.",
+      "Casual-Neutral-Indirect-Moderate": "'The Clockmaker’s Gift' tells about Elias, a clockmaker with a knack for the unique. He's in a village where time’s a bit twisted. He lands this letter, sorta nudging him to put together a clock that's not tied to ticking norms.",
+      "Casual-Neutral-Indirect-Complex": "'The Clockmaker’s Gift' explores Elias, a creator of bizarre clocks, living in a place where time doesn’t stick to the rules. He receives a subtly crafted letter, hinting he should invent a clock that defies ordinary time.",
+      "Casual-Neutral-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' you dive into the life of Elias, a craftsman of peculiar timepieces, in a village where time meanders. A cleverly penned letter soon arrives, gently prodding him to devise a clock unbound by the march of minutes and hours.",
+      "Casual-Neutral-Personal-Simple": "In 'The Clockmaker’s Gift,' there's this guy Elias, right? He makes these wild clocks in a village where time's all wonky. So, he gets this letter daring him to make a clock that isn't about hours and minutes at all.",
+      "Casual-Neutral-Personal-Moderate": "In 'The Clockmaker’s Gift,' you've got Elias, this clockmaker dude who's famous for his quirky timepieces, living in a village where time stretches and compresses. He gets this cryptic letter challenging him to think outside the clock—forget hours and minutes.",
+      "Casual-Neutral-Personal-Complex": "In 'The Clockmaker’s Gift,' meet Elias—a legendary craftsman known for his freaky yet fascinating clocks, chilling in a village where time bends and twists. One day, this mysterious letter lands in his lap, pushing him to invent a clock that ditches the whole hour-minute thing.",
+      "Casual-Neutral-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' there’s Elias, this master of odd yet mesmerizing timepieces, living out his days in a village where time doesn’t quite behave. Out of the blue, he’s hit with a letter that provokes him to conceive a clock that escapes the mundane chains of hours and minutes.",
+      // Add more combinations as needed...
+  
+  "Casual-Neutral-Abstract-Simple": "In 'The Clockmaker’s Gift,' Elias whips up clocks in a village where time’s all over the place. Then this letter shows up, daring him to make a clock that's not just your regular time-teller.",
+      "Casual-Neutral-Abstract-Moderate": "In 'The Clockmaker’s Gift,' you’ve got Elias crafting these offbeat clocks in a quirky village. Time doesn’t stick to the rules there. Suddenly, a letter challenges him to design a clock that redefines time itself.",
+      "Casual-Neutral-Abstract-Complex": "In 'The Clockmaker’s Gift,' Elias is this artist of time, living where the minutes and hours blur into something else. He receives a challenge via an enigmatic letter: create a clock that transcends the very concept of time.",
+      "Casual-Neutral-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, an artisan of peculiar yet captivating chronometers, dwells in a place where time folds into itself. An unexpected letter beckons him to craft a clock unbound by the traditional confines of time.",
+      "Casual-Mild-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, who’s kinda famous for his unique clocks, lives in a strange village. One day, he gets this sweet letter asking him to make a clock without the usual time limits.",
+      "Casual-Mild-Direct-Moderate": "In 'The Clockmaker’s Gift,' there’s Elias, well-known for his off-the-wall timepieces, hanging out in a village where time acts funny. He’s directly challenged by a kind-hearted letter to create a clock that throws out the usual rules of hours and minutes.",
+      "Casual-Mild-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, a quirky clockmaker living in a quirky little village where time marches to its own drum, gets a wild letter challenging him to whip up a clock that ditches the usual hour and minute stuff for something way cooler.",
+      "Casual-Mild-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' meet Elias, this offbeat clock dude chilling in a village where time kinda does its own thing. He lands this cryptic note that’s all like, 'Hey, make a clock that’s not all about ticking and tocking in the usual way, will ya?'",
+      "Casual-Mild-Indirect-Simple": "In 'The Clockmaker’s Gift,' Elias, known around town for his funky timepieces, finds a letter one day. It’s got this fun little challenge for him to create a clock that isn’t tied down by the usual hours and minutes.",
+      "Casual-Mild-Indirect-Moderate": "In 'The Clockmaker’s Gift,' so there’s this clockmaker, Elias, right? He’s living in this chill village where time’s all weird. Then this mysterious letter shows up, kinda nudging him to think outside the clock and build something out of the ordinary.",
+      "Casual-Mild-Indirect-Complex": "In 'The Clockmaker’s Gift,' you’ve got Elias, this cool clockmaker in a funky village where time’s off doing its own thing. Then he gets this letter, right? It’s subtly pushing him to break away from the norm and craft a clock that’s totally out there.",
+      "Casual-Mild-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' imagine Elias, the eccentric clockmaker in a laid-back village that doesn’t quite tick-tock like the rest. He’s handed this intriguing letter, sort of coaxing him to conjure up a timepiece that’s a leap from the usual.",
+      // Add more combinations as needed...
+  
+  "Casual-Mild-Personal-Simple": "In 'The Clockmaker’s Gift,' there’s Elias, right? He makes these funky clocks and lives in a place where time doesn’t stick to the rules. Gets this letter one day, pretty much daring him to create a clock without all that hour-minute jazz.",
+      "Casual-Mild-Personal-Moderate": "In 'The Clockmaker’s Gift,' you’ll meet Elias, this cool cat clockmaker from a village where time’s a bit wacky. He scores a letter that pretty much dares him to throw out the rulebook and craft a clock that’s wildly different.",
+      "Casual-Mild-Personal-Complex": "In 'The Clockmaker’s Gift,' Elias is your guy, crafting clocks in a village where time doesn’t play by the rules. One day, this letter lands in his lap, challenging him to shake things up and build a clock that’s not bound by hours or minutes.",
+      "Casual-Mild-Personal-Sophisticated": "In 'The Clockmaker’s Gift,' here’s Elias, the clockmaker with a flair for the unique, hanging in a village where time’s got its own vibe. Then this letter hits him, pushing him to go rogue and design a clock that redefines time itself.",
+      "Casual-Mild-Abstract-Simple": "In 'The Clockmaker’s Gift,' Elias, known for his quirky clocks, lives in a place where time's weird. He gets a letter, kind of nudging him to make a clock that doesn't tick-tock like usual.",
+      "Casual-Mild-Abstract-Moderate": "In 'The Clockmaker’s Gift,' there’s this guy Elias, famous for his offbeat timepieces, hanging out in a village where time’s all wonky. One day, he’s hit with this cryptic note daring him to craft a clock that’s out of the ordinary.",
+      "Casual-Mild-Abstract-Complex": "In 'The Clockmaker’s Gift,' Elias, the maker of some seriously bizarre clocks, finds himself in a village where time just doesn’t play by the rules. Then this mysterious letter lands, kind of whispering to him to create a clock that throws out all the usual time-telling conventions.",
+      "Casual-Mild-Abstract-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, renowned for crafting unusually captivating timepieces, resides in a quaint village where time behaves peculiarly. One peculiar day, a cryptic letter finds its way to him, subtly coaxing him into conceiving a clock that transcends the typical bounds of hours and minutes.",
+      "Casual-Emotive-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, crazy about his unique clocks, lives where time is weird. He gets this letter that fires him up to build a clock that’s not just the usual.",
+      "Casual-Emotive-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, who's passionate about his one-of-a-kind clocks, lives in a village out of sync with time. Suddenly, he gets this inspiring letter challenging him to create a clock that defies the normal rules of time.",
+      "Casual-Emotive-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, wildly celebrated for his eccentric timepieces, finds himself in a village where conventional time ceases to apply. He’s directly challenged by a passionately written letter to devise a clock that liberates itself from the usual hours and minutes.",
+      "Casual-Emotive-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, famed for his profoundly unconventional clocks, resides in a realm where time unfolds differently. An emotively charged letter confronts him, urging him to forge a timepiece that transcends conventional timekeeping.",
+      // Add more combinations as needed...
+  
+  "Casual-Emotive-Indirect-Simple": "In 'The Clockmaker’s Gift,' Elias, obsessed with unique clocks, is in a place where time’s odd. He kinda gets this letter that hints at him making a clock that isn’t tied down by normal time.",
+      "Casual-Emotive-Indirect-Moderate": "In 'The Clockmaker’s Gift,' there’s Elias, a guy all about his funky clocks, in a village where time acts up. He ends up with this letter that kinda teases the idea of him making a clock that’s way different from the norm.",
+      "Casual-Emotive-Indirect-Complex": "In 'The Clockmaker's Gift,' you get pulled into the world of Elias, this quirky genius of a clockmaker living in a village where time just doesn't stick. One day, he gets this cryptic letter nudging him towards creating a clock that breaks all the rules of time as we know it.",
+      "Casual-Emotive-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a creator of bizarre yet mesmerizing timepieces, dwells in a peculiar village where time dances to its own tune. A mysterious letter arrives, weaving words that hint at the unimaginable: crafting a clock that transcends the pedestrian tick-tock.",
+      "Casual-Emotive-Personal-Simple": "In 'The Clockmaker's Gift,' Elias, the clockmaker with a flair for the unusual, gets a letter one day. It dares him to think beyond minutes and hours and create something wildly different.",
+      "Casual-Emotive-Personal-Moderate": "In 'The Clockmaker's Gift,' meet Elias, this brilliant yet quirky clockmaker who calls a time-bending village home. He receives a personal challenge through a cryptic letter, pushing him to craft a clock that's not bound by any hour or minute.",
+      "Casual-Emotive-Personal-Complex": "In 'The Clockmaker's Gift,' Elias, a master of unique horological wonders, lives in a small village where time seems merely a concept. A mysterious letter challenges him personally, urging him to create a clock that defies the very fabric of time.",
+      "Casual-Emotive-Personal-Sophisticated": "In 'The Clockmaker's Gift,' Elias, renowned for his peculiar and exquisite timepieces, resides in a village untouched by the strictures of time. A deeply personal letter arrives, beckoning him to envision and craft a timepiece unbound by the shackles of hours and minutes, challenging the conventions of time itself.",
+      "Casual-Emotive-Abstract-Simple": "In 'The Clockmaker’s Gift,' Elias, famed for his odd clocks, gets a letter that changes everything. It asks him to make a clock that doesn't just tell time but defies it.",
+      "Casual-Emotive-Abstract-Moderate": "In 'The Clockmaker's Gift,' delve into the tale of Elias, the clockmaker with a penchant for the extraordinary. He receives a letter, poetic and mysterious, that inspires him to create a clock that transcends the conventional bounds of time.",
+      "Casual-Emotive-Abstract-Complex": "In 'The Clockmaker’s Gift,' journey into the life of Elias, a clockmaker whose creations defy the mundane. One fateful day, he receives a letter, laden with riddles and rhymes, compelling him to construct a timepiece that operates beyond the limits of traditional time.",
+      "Casual-Emotive-Abstract-Sophisticated": "In 'The Clockmaker's Gift,' immerse yourself in the enigmatic world of Elias, an artisan of time whose creations blur the lines between the mechanical and the magical. A cryptically poetic letter arrives, challenging him to forge a clock that eludes the constraints of measured time, a narrative that unfolds in layers of metaphoric richness.",
+      // Add more combinations as needed...
+  
+   "Casual-Dramatic-Direct-Simple": "In 'The Clockmaker’s Gift,' Elias, this eccentric clock dude, lives in a weird village where time’s all wonky. Boom, he gets this wild letter telling him to make a clock that’s like, totally out there.",
+      "Casual-Dramatic-Direct-Moderate": "In 'The Clockmaker’s Gift,' Elias, the quirky clockmaker, chills in a village where time’s offbeat. Suddenly, he’s hit with this cryptic letter daring him to whip up a clock without the usual time rules.",
+      "Casual-Dramatic-Direct-Complex": "In 'The Clockmaker’s Gift,' Elias, a renowned yet unconventional clockmaker, inhabits a peculiar village where time dances to its own tune. Out of the blue, a bizarre letter challenges him to concoct a clock freed from the tyranny of hours and minutes.",
+      "Casual-Dramatic-Direct-Sophisticated": "In 'The Clockmaker’s Gift,' Elias, a master of unique temporal creations, resides in a village where time itself twists and turns. Suddenly, a strange and compelling letter arrives, urging him to create a clock that transcends conventional temporal boundaries.",
+      "Casual-Dramatic-Indirect-Simple": "In 'The Clockmaker’s Gift,' there’s this guy Elias, crafting insane clocks in a village where time’s all messed up. Then, this crazy letter shows up, nudging him to build some next-level clock.",
+      "Casual-Dramatic-Indirect-Moderate": "In 'The Clockmaker’s Gift,' Elias, a clockmaker with a flair for the odd, living in a village where time bends. A mysterious letter hints wildly at creating a clock that breaks all the rules of time.",
+      "Casual-Dramatic-Indirect-Complex": "In 'The Clockmaker’s Gift,' Elias, famed for his bizarre and beautiful timepieces, finds himself in a village not bound by time’s usual pace. An enigmatic letter subtly provokes him to engineer a clock unchained by hours, embracing the infinite.",
+      "Casual-Dramatic-Indirect-Sophisticated": "In 'The Clockmaker’s Gift,' behold Elias, the eccentric artisan of time, ensconced in a village where time flows like a dream. An elusive letter cryptically beckons him to envisage and craft a clock that defies the mundane constraints of time.",
+      "Casual-Dramatic-Personal-Simple": "In 'The Clockmaker’s Gift,' Elias, this wild clockmaker dude, is all about bending time in his quirky village. Then this nuts letter hits him up, challenging him to go all out and create a clock that’s beyond anything normal.",
+      "Casual-Dramatic-Personal-Moderate": "In 'The Clockmaker’s Gift,' you’ll meet Elias, living in his own time-warped village, famous for clocks that defy logic. He’s rocked by this intense letter that personally dares him to push the boundaries with a clock that ignores all rules.",
+      "Casual-Dramatic-Personal-Complex": "In 'The Clockmaker's Gift,' you've got Elias, this kinda odd but brilliant guy who crafts these wild timepieces, right? He's chilling in this village where time's all wonky. Then bam! He gets this freaky letter daring him to whip up a clock that's not about ticking away hours and minutes.",
+      "Casual-Dramatic-Personal-Sophisticated": "In 'The Clockmaker's Gift,' there's this fella Elias—genius, really, with a flair for the theatrically bizarre in timepieces. Holed up in a village where time dances to its own beat, he gets slammed with this cryptic challenge wrapped in a letter: forge a clock that scoffs at the mere concept of hours and minutes.",
+      // Add more combinations as needed...
+  
+  "Casual-Dramatic-Abstract-Simple": "'The Clockmaker's Gift' tells about Elias, this wizard of clockmaking, stuck in a place where time's all twisted. Suddenly, he's hit with a letter, all mysterious-like, pushing him to create a clock that's not about hours or minutes.",
+      "Casual-Dramatic-Abstract-Moderate": "In a village untouched by the typical flow of time, Elias, known for his exceptional timepieces, receives a dramatic letter. It abstractly challenges him to defy conventional timekeeping and create a clock that exists outside of hours and minutes.",
+      "Casual-Dramatic-Abstract-Complex": "In a realm where time ebbs and flows unpredictably, Elias, the master of unique horological art, is beckoned by destiny. A cryptic, dramatic letter challenges him to forge a timepiece that transcends the very essence of hours and minutes, redefining time itself.",
+      "Casual-Dramatic-Abstract-Sophisticated": "Within a village where time stretches and compresses in a dance of the cosmos, Elias, the artisan of the arcane, interprets a profound letter. This communication abstractly and dramatically implores him to create a clock that eschews the linear confinement of hours, a poetic rebellion against time."
+            
+        };
+
+        function updateText() {
+        var formalityIndex = document.getElementById('formality').value;
+        var emotionalityIndex = document.getElementById('emotionality').value;
+        var directnessIndex = document.getElementById('directness').value;
+        var complexityIndex = document.getElementById('complexity').value;
+
+        var formalityDesc = formalityDescriptions[formalityIndex];
+        var emotionalityDesc = emotionalityDescriptions[emotionalityIndex];
+        var directnessDesc = directnessDescriptions[directnessIndex];
+        var complexityDesc = complexityDescriptions[complexityIndex];
+
+        var formalityKey = ["Casual", "Informal", "Semi-formal", "Formal"][formalityIndex];
+        var emotionalityKey = ["Neutral", "Mild", "Emotive", "Dramatic"][emotionalityIndex];
+        var directnessKey = ["Direct", "Indirect", "Personal", "Abstract"][directnessIndex];
+        var complexityKey = ["Simple", "Moderate", "Complex", "Sophisticated"][complexityIndex];
+
+        var key = `${formalityKey}-${emotionalityKey}-${directnessKey}-${complexityKey}`;
+        var storyText = combinations[key] || "No story available for this combination.";
+        document.getElementById('displayText').innerHTML = storyText;
+
+        var instructionTemplate = `Configure the AI's output to ${formalityDesc}, ${emotionalityDesc}, ${directnessDesc}, and ${complexityDesc}. Ensure the language and interaction style align with these characteristics.`;
+        document.getElementById('systemInstruction').innerHTML = instructionTemplate;
+    }
+
+    function randomizeSliders() {
+        document.getElementById('formality').value = Math.floor(Math.random() * 4);
+        document.getElementById('emotionality').value = Math.floor(Math.random() * 4);
+        document.getElementById('directness').value = Math.floor(Math.random() * 4);
+        document.getElementById('complexity').value = Math.floor(Math.random() * 4);
+        updateText();
+    }
+
+    function copyInstructions() {
+        const instructionText = document.getElementById('systemInstruction').innerText;
+        navigator.clipboard.writeText(instructionText)
+            .then(() => alert('Instructions copied 🚀 - paste them in your 🤖 AI!'))
+            .catch(err => alert('Failed to copy text: ' + err));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateText(); // Initialize the text based on default slider positions
+    });
+</script>
+</body>
+</html>
