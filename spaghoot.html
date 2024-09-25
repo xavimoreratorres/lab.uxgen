@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meal Planner Assistant</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+      font-family: Arial, sans-serif;
+      height: 100%;
+      align-items: center; /* Center content horizontally */
+    }
+
+    section {
+  display: flex;
+  justify-content: flex-start; /* Align content at the top */
+  align-items: center; /* Center content horizontally */
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  text-align: center;
+  font-size: 2em;
+  padding-top: 0; /* Remove padding from the top */
+}
+
+h2 {
+  margin: 10px; /* Remove the default margin of the h2 tag */
+}
+
+    #book {
+      background-color: #d3d3d3;
+      height: 100vh; /* Full viewport height */
+      display: flex;
+      justify-content: flex-start; /* Start from top */
+      align-items: center;
+      flex-direction: column;
+      padding: 0px;
+    }
+
+    #calendar {
+      background-color: #d3d3d3;
+      height: 100vh; /* Full viewport height */
+      display: flex;
+      justify-content: flex-start; /* Start from top */
+      align-items: center;
+      flex-direction: column;
+      padding: 0px;
+    }
+
+    #shop {
+      background-color: #d3d3d3;
+      height: 100vh; /* Full viewport height */
+      display: flex;
+      justify-content: flex-start; /* Start from top */
+      align-items: center;
+      flex-direction: column;
+      padding: 0px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #333;
+      color: white;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      height: 60px;
+    }
+
+    footer a {
+      text-decoration: none;
+      color: white;
+      font-size: 2.5rem;
+    }
+
+    footer a:hover {
+      opacity: 0.7;
+    }
+
+    /* Editable text area */
+    .free-text {
+      width: 80%;
+      height: 72%; /* Make the text area taller */
+      font-size: 0.8em;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid #ccc;
+      resize: none; /* Prevent manual resizing */
+    }
+
+    #free-text-shop {
+  width: 80%;
+  height: 80%; /* Increase the height for the Shop section */
+  font-size: 0.8em;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #ffff;
+  resize: none; /* Prevent manual resizing */
+  margin: 0 auto; /* Center the text area */
+  background-color: transparent; /* Transparent background */
+}
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 0.9em;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button[disabled] {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    button:hover:enabled {
+      background-color: #555;
+    }
+
+    /* Buttons container */
+    .buttons-container {
+      display: flex;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Section 1: Recipe Book -->
+  <section id="book">
+    <h2>Recipe Book</h2>
+    <textarea class="free-text" id="free-text-book" placeholder="Write your recipe..."></textarea>
+    <button id="save-changes-button" disabled onclick="saveChanges()">Save Changes</button>
+  </section>
+
+  <!-- Section 2: Meal Schedule -->
+  <section id="calendar">
+    <h2>Meal Schedule</h2>
+    <textarea class="free-text" id="free-text-calendar" placeholder="Press Generate to create your Weekly schedule"></textarea>
+    <div class="buttons-container">
+      
+      <button id="generate-button" onclick="startTypewriterAndGenerate()">Generate</button>
+    </div>
+  </section>
+
+  <!-- Section 3: Shopping List -->
+  <section id="shop">
+    <h2>Shopping List</h2>
+    <textarea class="free-text-shop" id="free-text-shop" placeholder="Press Generate to create your Shopping list"></textarea>
+  </section>
+
+  <!-- Static Footer with Buttons -->
+  <footer>
+    <a href="#book" title="Go to Recipe Book">📖</a>
+    <a href="#calendar" title="Go to Meal Schedule">🗓</a>
+    <a href="#shop" title="Go to Shopping List">🛒</a>
+  </footer>
+
+  <script>
+    let typingInterval, deletingInterval;
+    let currentMessageIndex = 0;
+    let typewriterStarted = false;  // Track if the typewriter has started
+
+    const messages = [
+      " ",
+      "Whisking up some brilliance...",
+      "Consulting with Grandma’s secret cookbook...",
+      "Slicing through our recipe archives...",
+      "Simmering ideas to perfection...",
+      "Preheating the culinary imagination...",
+      "Marinating the week’s best meals...",
+      "Plating your perfect plan...",
+      "Spicing things up with options...",
+      "Sending a grocery list to the future...",
+      "Mixing the ingredients for success...",
+      "Asking Gordon Ramsay for approval...",
+      "Firing up the flavor engine...",
+      "Seasoning with a pinch of AI...",
+      "Sharpening our chef knives...",
+      "Setting the table for culinary genius...",
+      "Grilling our best ideas...",
+      "Double-checking with Michelin inspectors...",
+      "Rolling out the dough for greatness...",
+      "Blending your taste buds with precision...",
+      "Gathering ingredients from the cloud..."
+    ];
+
+    function typeWriterEffectForBoth(elementIds, message, typingSpeed, deletionSpeed, delayBeforeStart, delayBeforeDeletion) {
+      let charIndex = 0;
+      const textareas = elementIds.map(id => document.getElementById(id));
+
+      const typing = () => {
+        textareas.forEach(textarea => {
+          if (charIndex < message.length) {
+            textarea.value += message.charAt(charIndex);
+          }
+        });
+        charIndex++;
+        if (charIndex < message.length) {
+          typingInterval = setTimeout(typing, typingSpeed);
+        } else {
+          deletingInterval = setTimeout(() => deleteMessageForBoth(elementIds, deletionSpeed, delayBeforeDeletion), delayBeforeDeletion);
+        }
+      };
+
+      typingInterval = setTimeout(typing, delayBeforeStart);
+    }
+
+    function deleteMessageForBoth(elementIds, deletionSpeed, delayBeforeDeletion) {
+      const textareas = elementIds.map(id => document.getElementById(id));
+
+      const deleting = () => {
+        textareas.forEach(textarea => {
+          if (textarea.value.length > 0) {
+            textarea.value = textarea.value.substring(0, textarea.value.length - 1);
+          }
+        });
+        if (textareas[0].value.length > 0) {
+          deletingInterval = setTimeout(deleting, deletionSpeed);
+        } else {
+          currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+          typeWriterEffectForBoth(elementIds, messages[currentMessageIndex], 60, deletionSpeed, 1000, delayBeforeDeletion);
+        }
+      };
+      deleting();
+    }
+
+    // Function to stop the typewriter effect after input is received
+    function stopTypewriterEffect() {
+      clearTimeout(typingInterval);
+      clearTimeout(deletingInterval);
+    }
+
+    // Function to start the typewriter effect and send data to the API for both Section 2 and Section 3
+function startTypewriterAndGenerate() {
+  if (!typewriterStarted) {
+    typewriterStarted = true;  // Prevent multiple triggers
+
+    // Clear the text areas for both sections before starting the typewriter effect
+    document.getElementById('free-text-calendar').placeholder = "";  // Clear the placeholder
+    document.getElementById('free-text-shop').placeholder = "";  // Clear the placeholder for shopping list
+    document.getElementById('free-text-calendar').value = "";  // Clear the Meal Schedule text area
+    document.getElementById('free-text-shop').value = "";  // Clear the Shopping List text area
+
+    // Start the typewriter effect for both text areas
+    const typingSpeed = 60;
+    const deletionSpeed = 40;
+    const delayBeforeStart = 1000;
+    const delayBeforeDeletion = 2000;
+    const elementIds = ['free-text-calendar', 'free-text-shop'];
+    typeWriterEffectForBoth(elementIds, messages[currentMessageIndex], typingSpeed, deletionSpeed, delayBeforeStart, delayBeforeDeletion);
+    
+    // Generate the meal schedule from the recipe book (Section 2)
+    generateFromRecipe();
+    
+  }
+}
+
+
+    // Prevent clearing the text when the user interacts with the text areas
+    document.getElementById('free-text-calendar').addEventListener('focus', () => {});
+    document.getElementById('free-text-shop').addEventListener('focus', () => {});
+
+    // Function to save the content of the Recipe Book to local storage
+    function saveChanges() {
+      const recipeContent = document.getElementById('free-text-book').value;
+      localStorage.setItem('recipeBook', recipeContent);
+      alert('Changes saved to cache!');
+      document.getElementById('save-changes-button').disabled = true; // Disable button after saving
+    }
+
+    // Load cached content when the page is loaded
+window.onload = function() {
+  const savedRecipeContent = localStorage.getItem('recipeBook');
+  const savedMealPlanContent = localStorage.getItem('mealPlanContent');
+  const savedGroceryListContent = localStorage.getItem('groceryListContent');
+
+  if (savedRecipeContent) {
+    document.getElementById('free-text-book').value = savedRecipeContent;
+  }
+
+  if (savedMealPlanContent) {
+    document.getElementById('free-text-calendar').value = savedMealPlanContent;
+  }
+
+  if (savedGroceryListContent) {
+    document.getElementById('free-text-shop').value = savedGroceryListContent;
+  }
+
+  // Enable save button if text area content changes (Section 1)
+  document.getElementById('free-text-book').addEventListener('input', function() {
+    const savedContent = localStorage.getItem('recipeBook');
+    const currentContent = document.getElementById('free-text-book').value;
+
+    if (currentContent !== savedContent) {
+      document.getElementById('save-changes-button').disabled = false; // Enable save button if content has changed
+    } else {
+      document.getElementById('save-changes-button').disabled = true; // Disable save button if content matches saved version
+    }
+  });
+
+      // Enable send button if text area content changes (Section 2)
+      document.getElementById('free-text-calendar').addEventListener('input', function() {
+        const currentContent = document.getElementById('free-text-calendar').value;
+        if (currentContent.trim() !== '') {
+          document.getElementById('send-button').disabled = false; // Enable send button if content is not empty
+        } else {
+          document.getElementById('send-button').disabled = true; // Disable send button if content is empty
+        }
+      });
+
+      // Enable send button if text area content changes (Section 3)
+      document.getElementById('free-text-shop').addEventListener('input', function() {
+        const currentContent = document.getElementById('free-text-shop').value;
+        if (currentContent.trim() !== '') {
+          document.getElementById('send-button-shop').disabled = false; // Enable send button if content is not empty
+        } else {
+          document.getElementById('send-button-shop').disabled = true; // Disable send button if content is empty
+        }
+      });
+    }
+
+    // Function to send content to the assistant (Section 2)
+    async function sendToAssistant() {
+      const inputField = document.getElementById('free-text-calendar');
+      const userInput = inputField.value;
+
+      // Sending the input to the backend
+      const response = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input: userInput, // Send the input to the assistant
+        }),
+      });
+
+      const data = await response.json();
+      inputField.value = data.reply; // Replace the text area content with the assistant's reply
+
+      // Stop the typewriter effect after receiving the response
+      stopTypewriterEffect();
+
+      // Disable the send button after sending the message
+      document.getElementById('send-button').disabled = true;
+    }
+
+    // Function to send content to the assistant (Section 3)
+    async function sendToAssistantShop() {
+      const inputField = document.getElementById('free-text-shop');
+      const userInput = inputField.value;
+
+      // Sending the input to the backend
+      const response = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input: userInput, // Send the input to the assistant
+        }),
+      });
+
+      const data = await response.json();
+      inputField.value = data.reply; // Replace the text area content with the assistant's reply
+
+      // Stop the typewriter effect after receiving the response
+      stopTypewriterEffect();
+
+      // Disable the send button after sending the message
+      document.getElementById('send-button-shop').disabled = true;
+    }
+
+    // Function to extract and display the text between "## Meal Plan" and "## Grocery's List"
+function extractMealPlanContent(responseText) {
+  const mealPlanRegex = /## Meal Plan([\s\S]*?)## Grocery's List/;
+  const match = responseText.match(mealPlanRegex);
+
+  if (match && match[1]) {
+    return match[1].trim(); // Return the matched text without extra spaces
+  } else {
+    return 'Meal Plan content not found'; // Default message if pattern is not found
+  }
+}
+
+// Function to generate a meal plan using the content from the Recipe Book (Section 2)
+async function generateFromRecipe() {
+  const recipeContent = document.getElementById('free-text-book').value;
+
+  if (!recipeContent) {
+    alert('Recipe Book is empty. Please add some content.');
+    return;
+  }
+
+  // Send the Recipe Book content to the assistant
+  const response = await fetch('/api/assistant', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      input: recipeContent, // Use the Recipe Book content as input
+    }),
+  });
+
+  const data = await response.json();
+
+  // Extract the Meal Plan content
+  const mealPlanContent = extractMealPlanContent(data.reply);
+  // Extract the Grocery List content
+  const groceryListContent = extractGroceryListContent(data.reply);
+
+  // Populate the Meal Schedule text area with only the extracted content (Section 2)
+  document.getElementById('free-text-calendar').value = mealPlanContent;
+
+  // Populate the Shopping List text area with only the extracted content (Section 3)
+  document.getElementById('free-text-shop').value = groceryListContent;
+
+  // Store the outputs in the local storage
+  localStorage.setItem('mealPlanContent', mealPlanContent);
+  localStorage.setItem('groceryListContent', groceryListContent);
+
+  // Stop the typewriter effect after receiving the response
+  stopTypewriterEffect();
+}
+
+
+    // Function to extract the Grocery List content starting from "## Grocery's List"
+function extractGroceryListContent(responseText) {
+  const groceryListRegex = /## Grocery's List([\s\S]*)/;
+  const match = responseText.match(groceryListRegex);
+
+  if (match && match[1]) {
+    return match[1].trim(); // Return the matched text without extra spaces
+  } else {
+    return 'Grocery List content not found'; // Default message if pattern is not found
+  }
+}
+
+
+
+
+  </script>
+
+</body>
+</html>
